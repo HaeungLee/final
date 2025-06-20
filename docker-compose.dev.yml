@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - react-frontend
+    networks:
+      - app-network
+    
+  react-frontend:
+    build:
+      context: ./finalteam/test2agent/client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - app-network
+    
+  # Spring 백엔드는 기존 방식으로 별도 실행
+  # Node.js 백엔드도 기존 방식으로 별도 실행
+  
+networks:
+  app-network:
+    driver: bridge
