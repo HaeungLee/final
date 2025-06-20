@@ -1,0 +1,35 @@
+Agentica가 function calling 결과를 처리할 때 내부적으로 별도의 프롬프트를 사용하고 있음
+
+사용자가 설정한 systemPrompt와 max_tokens 설정이 function call 결과 처리 단계에서 무시되고 있음
+응답이 두 단계로 나뉘어 생성됨:
+1단계: Function call 실행 결과를 영어로 상세 설명 (이 부분이 문제)
+2단계: 사용자 요청에 대한 한국어 응답
+
+해결 방법 제안
+1. 즉시 시도 가능한 방법들
+A. systemPrompt 강화
+systemPrompt: {
+  common: () => `당신은 극도로 간결한 한국어 어시스턴트입니다.
+- FUNCTION CALL 결과는 절대 영어로 설명하지 마세요
+- 모든 응답은 한국어로만 하세요
+- 최대 1-2문장으로만 답변하세요
+- 기술적 세부사항, ID, 상세 설명은 모두 생략하세요
+- "성공했습니다" 형태의 간단한 확인만 하세요`
+}
+
+B. max_tokens 더 제한
+max_tokens: 30,  // 150 → 30으로 대폭 감소
+
+model: "gpt-3.5-turbo",  // gpt-4o-mini 대신
+
+근본적 해결책
+🎯 LangChain 적용 권장
+현재 문제는 Agentica 프레임워크의 구조적 한계입니다. TTS를 위한 짧은 응답이 목표라면 LangChain 적용을 강력히 권장합니다.
+LangChain의 장점:
+Function calling 후 응답 생성을 완전히 제어 가능
+Custom output parser로 원하는 형태의 응답만 생성 가능
+각 단계별로 세밀한 프롬프트 엔지니어링 가능
+🎯 최종 권장사항
+단기적: 위의 즉시 시도 가능한 방법들을 적용해보세요
+장기적: LangChain으로 마이그레이션하는 것이 목표 달성에 가장 확실한 방법입니다
+TTS를 위한 간결한 응답이 핵심 요구사항이라면, Agentica보다는 LangChain이 더 적합한 선택일 것 같습니다.
