@@ -1,0 +1,26 @@
+# FastAPI 관련
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+python-multipart>=0.0.9
+
+# STT (Whisper) 관련  
+openai-whisper>=20231117
+sounddevice>=0.4.6
+soundfile>=0.12.1
+numpy>=1.24.0,<2.0.0
+
+# TTS (ElevenLabs) 관련
+elevenlabs>=2.3.0
+requests>=2.31.0
+pygame>=2.5.0
+
+# 유틸리티
+python-dotenv>=1.0.0
+aiofiles>=23.2.0
+
+# 개발/테스트
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+httpx>=0.25.0 
