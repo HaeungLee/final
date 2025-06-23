@@ -161,7 +161,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # 임시 파일 및 디렉토리
-process/*
+process/
 temp/
 tmp/
 temp_*/
@@ -169,6 +169,10 @@ recordings/
 output/
 *.tmp
 *.temp
+
+# 서브모듈 관련 (잘못 추가된 것들)
+finalLogin/
+finalteam/
 
 # =====================================
 # 운영체제 관련
