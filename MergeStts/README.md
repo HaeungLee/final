@@ -106,7 +106,7 @@ curl -X POST "http://localhost:8082/api/record-and-transcribe" \
   -H "Content-Type: application/json" \
   -d '{"duration": 15.0}'
 
-# TTS 테스트  
+# TTS 테스트
 curl -X POST "http://localhost:8082/api/text-to-speech" \
   -H "Content-Type: application/json" \
   -d '{"text": "안녕하세요, 테스트입니다"}'
