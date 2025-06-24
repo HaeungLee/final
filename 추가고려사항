@@ -1,0 +1,9 @@
+
+react-native 적용한 모바일 환경 구축, 
+DB에 자주 쓰는 tts 음성 파일 저장 후 호출
+상세 summary 기능 On/off 기능 - 현재 tts 과도 호출을 방지한 주석처리
+stt 자동 호출 및 끄기
+VoiceAutorization 시스템 - 등록된 음성
+mic on/off을 소리로 가능하게(fingersnap)
+
+링크 끊고 전부 묶어서 파일 1개로
