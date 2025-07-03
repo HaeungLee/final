@@ -18,6 +18,6 @@
 [![FastAPI](https://img.shields.io/badge/fastapi-009688?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
 [![Hugging Face](https://img.shields.io/badge/huggingface-FFD21E?style=flat&logo=huggingface&logoColor=white)](https://huggingface.co/)
 [![OpenAI](https://img.shields.io/badge/openai-000000?style=flat&logo=openai&logoColor=white)](https://openai.com/)
-[![WebSocket](https://img.shields.io/badge/WebSocket-010101?style=flat&logo=websocket&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
+[![WebSocket](https://img.shields.io/badge/WebSocket-FABB00?style=flat&logo=websocket&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API)
 [![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)](https://redis.io/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-38B2AC?style=flat&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
