@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그아웃 완료</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .logout-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .logout-icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1.5rem;
+        }
+        
+        .provider-info {
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .btn-home {
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-home:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+            color: white;
+        }
+        
+        .countdown {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logout-container">
+            <div class="logout-icon">
+                ✅
+            </div>
+              <h2 class="mb-3 text-success fw-bold">로그아웃 완료!</h2>
+            
+            <div class="alert alert-success" style="border-radius: 15px; border: none; margin-bottom: 1.5rem;">
+                <strong>✅ 정상적으로 로그아웃되었습니다</strong><br>
+                <small>소셜 계정에서도 안전하게 로그아웃되어 자동 로그인이 방지됩니다.</small>
+            </div>
+            
+            <div style="background: linear-gradient(45deg, #e8f5e8, #f0f8f0); border-radius: 10px; padding: 1rem; margin: 1.5rem 0; border-left: 4px solid #28a745;">
+                <div class="d-flex align-items-center justify-content-center">
+                    <span style="font-size: 1.2rem; margin-right: 0.5rem;">🔒</span>
+                    <span><strong>보안 완료:</strong> 모든 세션이 안전하게 종료되었습니다</span>
+                </div>
+            </div>
+              <!-- 소셜 제공자 정보 표시 -->
+            <div th:if="${provider}" class="provider-info">
+                <strong>
+                    <span th:if="${provider == 'google'}">🔍 Google</span>
+                    <span th:if="${provider == 'kakao'}">🟡 Kakao</span>
+                    <span th:if="${provider == 'naver'}">🟢 Naver</span>
+                    <span th:if="${provider != 'google' && provider != 'kakao' && provider != 'naver'}" th:text="${provider}"></span>
+                </strong>
+                계정에서도 로그아웃되었습니다.
+                  <!-- 네이버 특화 메시지 -->
+                <div th:if="${provider == 'naver'}" style="margin-top: 10px; padding: 10px; background: #e8f5e8; border-radius: 5px;">
+                    <small>
+                        <strong>✅ 네이버 완전 로그아웃 완료</strong><br>
+                        • 🔑 Token Revocation: access_token/refresh_token 폐기<br>
+                        • 🗑️ 네이버 연결된 서비스에서 앱 제거<br>
+                        • 🧹 브라우저 세션 완전 삭제<br>
+                        • 🔒 자동 로그인 방지 처리 완료<br>
+                        • 📱 모든 네이버 서비스에서 로그아웃
+                    </small>
+                </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+                <a href="/" class="btn-home">
+                    🏠 메인으로 돌아가기
+                </a>
+            </div>
+            
+            <div class="countdown">
+                <span id="countdown">5</span>초 후 자동으로 메인 페이지로 이동합니다.
+            </div>
+            
+            <div class="mt-4">
+                <small class="text-muted">
+                    🔒 모든 세션이 안전하게 종료되었습니다.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>    <script>
+        // URL 파라미터에서 provider 정보 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const provider = urlParams.get('provider') || /*[[${provider}]]*/ '';
+        
+        // 강화된 브라우저 저장소 정리
+        function clearBrowserStorage() {
+            try {
+                console.log('🧹 최종 브라우저 저장소 정리 시작');
+                
+                // 1. localStorage 완전 정리
+                if (window.localStorage) {
+                    const localKeys = Object.keys(localStorage);
+                    console.log('localStorage 전체 항목:', localKeys);
+                    
+                    // OAuth2 및 소셜 로그인 관련 저장소 키 정리
+                    const keysToRemove = [
+                        'accessToken', 'refreshToken', 'userInfo', 'authToken',
+                        'loginProvider', 'naverAccessToken', 'naverUserInfo',
+                        'googleAccessToken', 'kakaoAccessToken', 'jwt_token',
+                        'oauth2_state', 'oauth2_code_verifier', 'oauth2_redirect_uri',
+                        'social_login_provider', 'social_user_info',
+                        // 네이버 특화 키들
+                        'naver_login_state', 'naver_callback_url', 'nid_aut', 'nid_ses',
+                        // 구글 특화 키들
+                        'google_auth_state', 'google_oauth_token',
+                        // 카카오 특화 키들
+                        'kakao_auth_token', 'kakao_user_data'
+                    ];
+                    
+                    keysToRemove.forEach(key => {
+                        localStorage.removeItem(key);
+                        console.log('localStorage 삭제:', key);
+                    });
+                    
+                    // 패턴 매칭으로 추가 정리
+                    localKeys.forEach(key => {
+                        const lowerKey = key.toLowerCase();
+                        if (lowerKey.includes('oauth') || lowerKey.includes('token') || 
+                            lowerKey.includes('auth') || lowerKey.includes('naver') ||
+                            lowerKey.includes('google') || lowerKey.includes('kakao')) {
+                            localStorage.removeItem(key);
+                            console.log('패턴 매칭 localStorage 삭제:', key);
+                        }
+                    });
+                    
+                    // 필요시 전체 localStorage 정리 (주의: 다른 데이터도 삭제됨)
+                    // localStorage.clear();
+                }
+                
+                // 2. sessionStorage 완전 정리
+                if (window.sessionStorage) {
+                    const sessionKeys = Object.keys(sessionStorage);
+                    console.log('sessionStorage 전체 항목:', sessionKeys);
+                    
+                    // sessionStorage는 전체 정리 (세션 종료시 어차피 삭제됨)
+                    sessionStorage.clear();
+                    console.log('✅ sessionStorage 전체 정리 완료');
+                }
+                
+                // 3. 쿠키 재확인 및 정리 (JavaScript로 접근 가능한 쿠키들)
+                clearRemainingCookies();
+                
+                console.log('✅ 최종 브라우저 저장소 정리 완료');
+                
+            } catch (e) {
+                console.warn('⚠️ 저장소 정리 중 오류:', e);
+            }
+        }
+        
+        // 남은 쿠키들 정리
+        function clearRemainingCookies() {
+            try {
+                console.log('🍪 남은 쿠키 정리 시작');
+                
+                // 현재 도메인의 모든 쿠키 확인
+                const cookies = document.cookie.split(';');
+                console.log('현재 쿠키들:', cookies);
+                
+                // 각 쿠키 삭제 시도
+                cookies.forEach(cookie => {
+                    const eqPos = cookie.indexOf('=');
+                    const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    
+                    if (name) {
+                        // 다양한 경로와 도메인에서 쿠키 삭제 시도
+                        const paths = ['/', '/user', '/api', ''];
+                        const domains = ['', `.${window.location.hostname}`, window.location.hostname];
+                        
+                        paths.forEach(path => {
+                            domains.forEach(domain => {
+                                let cookieString = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path};`;
+                                if (domain) {
+                                    cookieString += ` domain=${domain};`;
+                                }
+                                document.cookie = cookieString;
+                            });
+                        });
+                        
+                        console.log('쿠키 삭제 시도:', name);
+                    }
+                });
+                
+                console.log('✅ 남은 쿠키 정리 완료');
+                
+            } catch (e) {
+                console.warn('⚠️ 쿠키 정리 중 오류:', e);
+            }
+        }
+        
+        // 네이버 특화 최종 정리
+        function naverFinalCleanup() {
+            if (provider === 'naver') {
+                console.log('🟢 네이버 최종 정리 시작');
+                
+                try {
+                    // 네이버 특화 쿠키들 강제 삭제
+                    const naverCookies = ['NID_AUT', 'NID_SES', 'NID_JKL', 'NAVER_OPEN_RCVR', 'npic'];
+                    naverCookies.forEach(cookieName => {
+                        // 여러 도메인에서 삭제 시도
+                        const domains = ['', '.naver.com', window.location.hostname];
+                        domains.forEach(domain => {
+                            let cookieString = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                            if (domain) {
+                                cookieString += ` domain=${domain};`;
+                            }
+                            document.cookie = cookieString;
+                        });
+                        console.log('네이버 쿠키 강제 삭제:', cookieName);
+                    });
+                    
+                    console.log('✅ 네이버 최종 정리 완료');
+                    
+                } catch (e) {
+                    console.warn('⚠️ 네이버 최종 정리 중 오류:', e);
+                }
+            }
+        }
+        
+        // 초기 정리 실행
+        clearBrowserStorage();
+        naverFinalCleanup();
+        
+        // 카운트다운 및 자동 리디렉션
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            if (countdownElement) {
+                countdownElement.textContent = countdown;
+            }
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                // 최종 정리 한번 더 실행 후 이동
+                clearBrowserStorage();
+                naverFinalCleanup();
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 500);
+            }
+        }, 1000);
+        
+        // 즉시 메인으로 이동하는 이벤트 리스너
+        const homeButton = document.querySelector('.btn-home');
+        if (homeButton) {
+            homeButton.addEventListener('click', (e) => {
+                clearInterval(timer);
+                // 최종 정리 실행
+                clearBrowserStorage();
+                naverFinalCleanup();
+            });
+        }
+        
+        // 로그 출력
+        if (provider) {
+            console.log(`${provider.toUpperCase()} 소셜 로그아웃 완료`);
+        }
+        console.log('강화된 로그아웃 완료 페이지 로드됨');
+        
+        // 페이지 언로드시 최종 정리
+        window.addEventListener('beforeunload', () => {
+            clearBrowserStorage();
+            naverFinalCleanup();
+        });
+    </script>
+</body>
+</html>

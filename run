@@ -1,0 +1,58 @@
+DockerDesktop need to be on
+
+# 포트 구조:
+# 8080: Spring Security (JWT 인증)
+# 8082: Python FastAPI STT/TTS (MergeStts)
+# 8084: Expo 개발 서버 (React Native)
+# 3000: Node.js Agent Backend (HTTP + WebSocket)
+# 5173: React Client (웹용)
+
+# 🚨 Voice Proxy 서버 (8083) 실행 - 필수!
+# .\quick_voice_proxy.cmd - Voice Proxy만 빠르게 실행
+# .\run_all_dev.cmd - 모든 개발 서버 동시 실행
+# .\check_servers.cmd - 서버 상태 확인
+
+# Phase 2 안전한 업그레이드 (최우선 권장)
+# .\safe_agentica_upgrade.cmd
+
+# Phase 2 업그레이드 후 테스트
+# .\test_after_upgrade.cmd
+
+# 또는 개별 실행:
+
+# 1. Spring Security (8080) - 선택사항
+ cd finalLogin/user && gradlew bootRun
+
+# 2. Python STT/TTS (8082) - 선택사항  
+ cd MergeStts && python web_server.py
+
+# 3. Node.js Agent Backend (3000) - 필수
+cd finalteam/test2agent/server && npm run dev
+
+# 4. Voice Proxy Server (8083) - 필수
+ cd finalteam/test2agent/server && npm run voice-proxy
+
+# 5. React Client (5173) - 웹용 (선택사항)
+ cd finalteam/test2agent/client && npm run dev
+
+# 6. React Native Mobile (8084) - 모바일용 필수
+cd finalteam/native && npm run expo:clear
+
+# 🎉 성공 기록 및 백업:
+# .\backup_success_config.cmd - 현재 성공 설정을 백업
+# .\restore_success_config.cmd - 백업된 성공 설정으로 복원
+
+# Metro 에러 해결 옵션들:
+# .\quick_metro_fix.cmd - 빠른 Metro 수정 (1분)
+# .\fix_metro_expo.cmd - 완전 복구 (5분) 
+# .\try_react_native_cli.cmd - React Native CLI 대안
+
+# 기타 문제 해결:
+# .\complete_expo_fix.cmd - 완전 수정 및 테스트 (추천!)
+# .\verify_expo_state.cmd - 상태 확인  
+# .\safe_agentica_upgrade.cmd - 안전한 업그레이드 
+# .\test_after_upgrade.cmd - 업그레이드 후 테스트
+
+# 📚 문서: EXPO_SUCCESS_GUIDE.md - 완전한 문제 해결 가이드
+
+

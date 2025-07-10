@@ -10,7 +10,8 @@ from fastapi.responses import JSONResponse
 
 from models import (
     RecordRequest, TTSRequest, VoiceCommandRequest,
-    VoiceResponse, HealthResponse, DurationPresetsResponse, ErrorResponse
+    VoiceResponse, HealthResponse, DurationPresetsResponse, ErrorResponse,
+    BaseAudioRequest  # New import for Base64 audio
 )
 from services import STTService, TTSService
 from config.settings import settings
@@ -353,6 +354,59 @@ async def list_voices():
         logger.error(f"음성 목록 조회 실패: {e}")
         raise HTTPException(status_code=500, detail="음성 목록 조회 실패")
 
+# 모바일 Base64 오디오 STT 엔드포인트
+@app.post("/api/transcribe-base64", response_model=VoiceResponse)
+async def transcribe_base64(request: BaseAudioRequest, background_tasks: BackgroundTasks):
+    """모바일에서 전송한 Base64 인코딩된 오디오를 STT로 변환"""
+    if stt_service is None:
+        raise HTTPException(status_code=503, detail="STT 서비스가 초기화되지 않았습니다")
+    
+    start_time = time.time()
+    
+    try:
+        logger.info(f"모바일 Base64 STT 요청 수신 - 데이터 길이: {len(request.audio_base64[:20])}...더 많은 문자")
+        
+        # Base64 오디오 처리 (새로운 메소드 사용)
+        text, audio_duration = await stt_service.transcribe_base64(request.audio_base64)
+        
+        processing_time = time.time() - start_time
+        
+        # 백그라운드에서 임시 파일 정리
+        background_tasks.add_task(
+            cleanup_old_temp_files, 
+            settings.TEMP_AUDIO_DIR,
+            max_age_hours=1  # 1시간 후 정리
+        )
+        
+        if text and text.strip():
+            logger.info(f"모바일 Base64 STT 성공 - 텍스트: {text[:50]}...")
+            return VoiceResponse(
+                success=True,
+                text=text.strip(),
+                duration=audio_duration or request.duration,
+                processing_time=processing_time,
+                message=f"음성 인식 완료 ({format_processing_time(processing_time)})"
+            )
+        else:
+            logger.warning("모바일 Base64 STT 결과가 비어있음")
+            return VoiceResponse(
+                success=False,
+                duration=audio_duration or request.duration,
+                processing_time=processing_time,
+                error="음성을 인식할 수 없습니다. 오디오 품질을 확인하고 다시 시도해주세요."
+            )
+            
+    except Exception as e:
+        processing_time = time.time() - start_time
+        logger.error(f"모바일 Base64 STT 처리 실패: {e}")
+        
+        return VoiceResponse(
+            success=False,
+            duration=request.duration,
+            processing_time=processing_time,
+            error=f"음성 인식 실패: {str(e)}"
+        )
+
 if __name__ == "__main__":
     import uvicorn
     
@@ -363,4 +417,4 @@ if __name__ == "__main__":
         port=settings.PORT,
         reload=settings.DEBUG,
         log_level="info" if settings.DEBUG else "warning"
-    ) 
+    )

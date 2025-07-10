@@ -72,7 +72,10 @@ build/
 # Gradle
 .gradle/
 build/
-!gradle/wrapper/gradle-wrapper.jar
+gradle/
+gradlew
+gradlew.bat
+!gradle/wrapper/gradle-wrapper.properties
 !**/src/main/**/build/
 !**/src/test/**/build/
 
@@ -171,8 +174,8 @@ output/
 *.temp
 
 # 서브모듈 관련 (잘못 추가된 것들)
-finalLogin/
-finalteam/
+# finalLogin/ - 이제 포함함
+# finalteam/ - 이제 포함함
 
 # =====================================
 # 운영체제 관련
@@ -258,8 +261,70 @@ coverage.xml
 *.key
 *.crt
 
+# =====================================
+# 프로젝트별 특수 파일
+# =====================================
 # 프로젝트별 임시 파일
 sttDuration
 phase3
 마이크테스트
 구조
+
+# 각 서브프로젝트의 개별 git 디렉토리 (통합 후 불필요)
+finalLogin/.git/
+finalteam/.git/
+MergeStts/.git/
+googlerefesh/.git/
+
+# 각 서브프로젝트의 빌드/캐시 파일들
+finalLogin/user/build/
+finalLogin/user/.gradle/
+
+# 프로젝트 문서 및 계획 파일 (선택적으로 포함하려면 주석 해제)
+# *.md
+# presentation*.md
+# phase*.md
+# plan*.md
+
+# 실행/테스트 스크립트들 (개발환경별로 다를 수 있음)
+*.cmd
+*.bat
+*.sh
+
+# 중요: 아래 핵심 스크립트들은 포함
+!run_all_dev.cmd
+!quick_voice_proxy.cmd
+!check_servers.cmd
+!git_setup_unified.cmd
+
+# 백업 및 성공 설정 파일
+expo_success_backup/
+backup_success_config.cmd
+restore_success_config.cmd
+
+# 오디오 관련 임시 파일
+temp_audio/
+*.wav
+*.mp3
+*.m4a
+
+# Expo 관련 추가
+.expo/
+expo-env.d.ts
+
+# 프로젝트 특수 폴더
+somethingWentWrong/
+USB/
+process/
+expo연결문제/
+
+# AI 모델 파일 (크기가 클 수 있음)
+*.model
+*.pkl
+*.joblib
+
+# 환경별 설정 파일
+.env.local
+.env.development
+.env.test
+.env.production

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그아웃 중...</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logout-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+        }
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .title {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        .message {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .countdown {
+            font-size: 0.9rem;
+            color: #999;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logo">🔄</div>
+        <div class="title">로그아웃 중...</div>
+        <div class="spinner"></div>        <div class="message">
+            소셜 계정에서 안전하게 로그아웃하고 있습니다.<br>
+            <span th:if="${provider == 'naver'}">
+                🔑 네이버 토큰 연동 해제 중...<br>
+                🧹 브라우저 세션 정리 중...
+            </span>
+            <span th:if="${provider != 'naver'}">
+                잠시만 기다려주세요.
+            </span>
+        </div><div class="countdown" id="countdown">
+            <span id="seconds">2</span>초 후 자동으로 완료됩니다.
+        </div>
+    </div>    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const provider = /*[[${provider}]]*/ '';
+        const socialLogoutUrl = /*[[${param.socialLogoutUrl}]]*/ '';
+        /*]]>*/
+
+        console.log('소셜 로그아웃 처리 시작:', provider, socialLogoutUrl);
+
+        // 1. 브라우저 저장소 완전 정리
+        function clearBrowserStorage() {
+            console.log('🧹 브라우저 저장소 정리 시작');
+            
+            try {
+                // localStorage 정리
+                if (window.localStorage) {
+                    const localStorageKeys = Object.keys(localStorage);
+                    console.log('localStorage 항목들:', localStorageKeys);
+                    
+                    // OAuth2 관련 키들 정리
+                    const oauthKeys = localStorageKeys.filter(key => 
+                        key.toLowerCase().includes('oauth') ||
+                        key.toLowerCase().includes('token') ||
+                        key.toLowerCase().includes('auth') ||
+                        key.toLowerCase().includes('naver') ||
+                        key.toLowerCase().includes('google') ||
+                        key.toLowerCase().includes('kakao')
+                    );
+                    
+                    oauthKeys.forEach(key => {
+                        localStorage.removeItem(key);
+                        console.log('localStorage 삭제:', key);
+                    });
+                    
+                    // 전체 localStorage 정리 (선택적)
+                    localStorage.clear();
+                    console.log('✅ localStorage 전체 정리 완료');
+                }
+                
+                // sessionStorage 정리
+                if (window.sessionStorage) {
+                    const sessionStorageKeys = Object.keys(sessionStorage);
+                    console.log('sessionStorage 항목들:', sessionStorageKeys);
+                    
+                    sessionStorage.clear();
+                    console.log('✅ sessionStorage 전체 정리 완료');
+                }
+                
+                // IndexedDB 정리 (고급)
+                if (window.indexedDB) {
+                    try {
+                        // 네이버, 구글, 카카오 관련 IndexedDB 정리
+                        const dbNames = ['naver-auth', 'google-auth', 'kakao-auth', 'oauth2-cache'];
+                        dbNames.forEach(dbName => {
+                            const deleteReq = indexedDB.deleteDatabase(dbName);
+                            deleteReq.onsuccess = () => console.log(`IndexedDB ${dbName} 삭제 완료`);
+                            deleteReq.onerror = () => console.log(`IndexedDB ${dbName} 삭제 실패`);
+                        });
+                    } catch (e) {
+                        console.warn('IndexedDB 정리 중 오류:', e);
+                    }
+                }
+                
+                console.log('✅ 브라우저 저장소 정리 완료');
+                
+            } catch (error) {
+                console.error('❌ 브라우저 저장소 정리 중 오류:', error);
+            }
+        }
+
+        // 2. 네이버 특화 정리 함수
+        function clearNaverSpecificData() {
+            if (provider === 'naver') {
+                console.log('🟢 네이버 특화 데이터 정리 시작');
+                
+                // 네이버 쿠키 강제 삭제 (JavaScript로 가능한 것들)
+                const naverCookies = ['NID_AUT', 'NID_SES', 'NID_JKL', 'NAVER_OPEN_RCVR', 'npic'];
+                naverCookies.forEach(cookieName => {
+                    // 현재 도메인에서 삭제
+                    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                    // .naver.com 도메인에서 삭제 시도
+                    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.naver.com;`;
+                    console.log('네이버 쿠키 삭제 시도:', cookieName);
+                });
+                
+                console.log('✅ 네이버 특화 데이터 정리 완료');
+            }
+        }        // 🔧 [4단계] 통합 개선된 소셜 로그아웃 처리
+        function performSocialLogout() {
+            console.log('🔧 소셜 로그아웃 처리 시작');
+            
+            // 1단계: 브라우저 저장소 정리
+            clearBrowserStorage();
+            
+            // 2단계: 소셜 제공자별 특화 정리
+            clearNaverSpecificData();
+            
+            // 3단계: 🔥 소셜 로그아웃 URL 처리 (개선된 방식)
+            if (socialLogoutUrl && socialLogoutUrl.trim() !== '') {
+                console.log('🔧 소셜 로그아웃 URL 처리:', socialLogoutUrl);
+                
+                try {
+                    if (provider === 'naver') {
+                        // 🔥 네이버 특화 처리: 새 창에서 로그아웃 후 완료 페이지로 이동
+                        console.log('🟢 네이버 브라우저 세션 로그아웃 시작');
+                        
+                        // 1) 새 창에서 네이버 로그아웃 URL 열기
+                        const naverLogoutWindow = window.open(
+                            decodeURIComponent(socialLogoutUrl), 
+                            'naverLogout', 
+                            'width=600,height=400,scrollbars=yes,resizable=yes'
+                        );
+                        
+                        // 2) 3초 후 네이버 로그아웃 창 닫고 완료 페이지로 이동
+                        setTimeout(() => {
+                            if (naverLogoutWindow && !naverLogoutWindow.closed) {
+                                naverLogoutWindow.close();
+                                console.log('✅ 네이버 로그아웃 창 닫음');
+                            }
+                            
+                            // 3) 완료 페이지로 이동
+                            console.log('🏁 네이버 완전 로그아웃 완료 - 완료 페이지로 이동');
+                            window.location.href = '/logout-complete?provider=naver';
+                        }, 3000);
+                        
+                    } else {
+                        // 다른 소셜 제공자는 직접 리다이렉트
+                        console.log('🔧 직접 리다이렉트:', provider);
+                        window.location.href = decodeURIComponent(socialLogoutUrl);
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ 소셜 로그아웃 리다이렉트 실패:', error);
+                    // 실패 시 바로 완료 페이지로 이동
+                    window.location.href = '/logout-complete?provider=' + (provider || '');
+                }
+                
+            } else {
+                console.log('❌ 소셜 로그아웃 URL이 없어 바로 완료 페이지로 이동');
+                window.location.href = '/logout-complete?provider=' + (provider || '');
+            }
+        }
+
+        // 카운트다운 및 자동 진행 (시간 단축)
+        let seconds = 2; // 2초로 단축하여 빠른 처리
+        const countdownElement = document.getElementById('seconds');
+        
+        if (countdownElement) {
+            countdownElement.textContent = seconds;
+        }
+        
+        const timer = setInterval(() => {
+            seconds--;
+            if (countdownElement) {
+                countdownElement.textContent = seconds;
+            }
+            
+            if (seconds <= 0) {
+                clearInterval(timer);
+                performSocialLogout();
+            }
+        }, 1000);
+
+        // 페이지 로드 후 빠른 소셜 로그아웃 시작
+        setTimeout(performSocialLogout, 500);
+    </script>
+</body>
+</html>

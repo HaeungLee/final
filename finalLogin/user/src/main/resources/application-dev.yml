@@ -1,0 +1,50 @@
+# Docker 개발 환경 설정
+spring:
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        use_sql_comments: true
+  datasource:
+    url: jdbc:postgresql://localhost:5432/testdb
+    username: test
+    password: test
+
+# 개발용 로깅 설정
+logging:
+  level:
+    com.agentica.user: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    # OAuth2 콜백 디버깅 강화
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.security.oauth2.client: DEBUG
+    org.springframework.security.oauth2.client.web: DEBUG
+    org.springframework.security.web.authentication: DEBUG
+
+# JWT 개발 설정
+jwt:
+  access-token-validity-time: 7200000   # 2시간 (개발용으로 길게)
+  refresh-token-validity-time: 604800000 # 7일
+
+# 애플리케이션 개발 설정
+app:
+  frontend:
+    url: http://localhost:3000
+  oauth2:
+    redirect-url: http://localhost:3000/oauth2/redirect
+    org.springframework.security: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    org.springframework.web: DEBUG
+
+# 서버 개발 설정 (쿠키 보안)
+server:
+  # port: 8081
+  servlet:
+    session:
+      cookie:
+        secure: false        # 개발환경에서는 HTTP에서도 쿠키 삭제 가능
+        http-only: true      # XSS 방지
+        same-site: lax       # CSRF 방지
+

@@ -1,4 +1,4 @@
-from .requests import RecordRequest, TTSRequest, VoiceCommandRequest
+from .requests import RecordRequest, TTSRequest, VoiceCommandRequest, BaseAudioRequest
 from .responses import (
     VoiceResponse, 
     HealthResponse, 
@@ -11,6 +11,7 @@ __all__ = [
     "RecordRequest",
     "TTSRequest", 
     "VoiceCommandRequest",
+    "BaseAudioRequest",
     "VoiceResponse",
     "HealthResponse",
     "DurationPreset",

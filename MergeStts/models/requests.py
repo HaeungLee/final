@@ -17,6 +17,30 @@ class RecordRequest(BaseModel):
             }
         }
 
+class BaseAudioRequest(BaseModel):
+    """모바일에서 Base64로 인코딩된 오디오 처리 요청 모델"""
+    audio_base64: str = Field(
+        ...,
+        description="Base64로 인코딩된 오디오 데이터"
+    )
+    duration: Optional[float] = Field(
+        default=15.0,
+        description="오디오 길이 (추정, 초)"
+    )
+    language: Optional[str] = Field(
+        default="ko",
+        description="음성 언어 (기본값: 한국어)"
+    )
+    
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "audio_base64": "...base64 encoded audio data...",
+                "duration": 15.0,
+                "language": "ko"
+            }
+        }
+
 class TTSRequest(BaseModel):
     """텍스트 음성 변환 요청 모델"""
     text: str = Field(
@@ -62,4 +86,4 @@ class VoiceCommandRequest(BaseModel):
                 "speak_response": False,
                 "voice_id": "21m00Tcm4TlvDq8ikWAM"
             }
-        } 
+        }

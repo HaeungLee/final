@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4A90E2;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content {
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .button {
+            display: inline-block;
+            background-color: #4A90E2;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #357ABD;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            color: #666;
+            text-align: center;
+        }
+        .highlight {
+            background-color: #f0f8ff;
+            padding: 15px;
+            border-left: 4px solid #4A90E2;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">Agentica User Service</div>
+            <h1 class="title">이메일 인증</h1>
+        </div>
+
+        <div class="content">
+            <p>안녕하세요!</p>
+            
+            <p><strong th:text="${email}"></strong> 계정으로 회원가입해 주셔서 감사합니다.</p>
+            
+            <div class="highlight">
+                <p><strong>회원가입을 완료하려면 아래 버튼을 클릭하여 이메일 인증을 완료해주세요.</strong></p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a th:href="${verificationUrl}" class="button">이메일 인증하기</a>
+            </div>
+            
+            <p>위 버튼이 작동하지 않는 경우, 아래 링크를 복사하여 브라우저 주소창에 붙여넣어 주세요:</p>
+            <p style="word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 3px;">
+                <span th:text="${verificationUrl}"></span>
+            </p>
+            
+            <p><strong>주의사항:</strong></p>
+            <ul>
+                <li>이 인증 링크는 24시간 후에 만료됩니다.</li>
+                <li>본인이 요청하지 않은 경우, 이 이메일을 무시하시기 바랍니다.</li>
+                <li>보안을 위해 링크는 한 번만 사용 가능합니다.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>이 이메일은 자동으로 발송되었습니다. 답장하지 마세요.</p>
+            <p>&copy; 2025 Agentica User Service. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

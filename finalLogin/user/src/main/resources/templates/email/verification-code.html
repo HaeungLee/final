@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이메일 인증번호</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', '맑은 고딕', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+        .verification-code {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 30px 0;
+            letter-spacing: 3px;
+        }
+        .info {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #4ecdc4;
+            margin: 20px 0;
+        }
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">✨ 회원가입 인증</div>
+            <h2>이메일 인증번호를 확인해주세요</h2>
+        </div>
+
+        <p>안녕하세요!</p>
+        <p><strong th:text="${toEmail}"></strong>님의 회원가입을 위한 인증번호입니다.</p>
+
+        <div class="verification-code" th:text="${verificationCode}">
+            123456
+        </div>
+
+        <div class="info">
+            <h4>📋 인증 안내</h4>
+            <ul>
+                <li>위의 6자리 인증번호를 회원가입 페이지에 입력해주세요</li>
+                <li>인증번호는 <strong>3분간</strong> 유효합니다</li>
+                <li>인증번호 입력은 최대 5번까지 가능합니다</li>
+                <li>시간이 초과되거나 횟수를 초과한 경우 새로운 인증번호를 요청해주세요</li>
+            </ul>
+        </div>
+
+        <div class="warning">
+            ⚠️ <strong>보안 안내</strong><br>
+            본인이 요청하지 않은 인증번호라면 이 이메일을 무시하시기 바랍니다.
+            다른 사람에게 인증번호를 알려주지 마세요.
+        </div>
+
+        <div class="footer">
+            <p>이 이메일은 자동으로 발송된 메일입니다.</p>
+            <p>문의사항이 있으시면 고객센터로 연락주세요.</p>
+            <hr>
+            <small>© 2024 우리 서비스. All rights reserved.</small>
+        </div>
+    </div>
+</body>
+</html>

@@ -104,7 +104,7 @@ curl http://localhost:8082/api/health
 # STT 테스트
 curl -X POST "http://localhost:8082/api/record-and-transcribe" \
   -H "Content-Type: application/json" \
-  -d '{"duration": 15.0}'
+  -d '{"duration": 10.0}'
 
 # TTS 테스트
 curl -X POST "http://localhost:8082/api/text-to-speech" \

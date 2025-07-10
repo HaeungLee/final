@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }        .profile-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            margin-top: 5vh;
+            padding: 3rem;
+        }
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid #e9ecef;
+            padding: 12px 20px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-custom {
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 5px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        .btn-verify {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border: none;
+            color: white;
+        }
+        .btn-update {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            border: none;
+            color: white;
+        }
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .alert {
+            border-radius: 15px;
+            border: none;
+        }
+        .profile-info {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .password-setup-section {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }        .password-strength {
+            height: 5px;
+            border-radius: 3px;
+            margin-top: 5px;
+            transition: all 0.3s ease;
+        }
+        .strength-weak { background: #ff6b6b; }
+        .strength-medium { background: #ffa726; }
+        .strength-strong { background: #4caf50; }
+        
+        .password-requirements {
+            font-size: 0.875rem;
+            color: #6c757d;
+            margin-top: 0.25rem;
+        }
+        
+        .password-feedback {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            min-height: 1.2rem;
+        }
+        
+        .password-match-feedback {
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            min-height: 1.2rem;
+        }
+        
+        .step {
+            display: none;
+        }
+        .step.active {
+            display: block;
+        }
+          #messageArea .alert, #generalMessageArea .alert {
+            border-radius: 15px;
+            border: none;
+            margin-bottom: 1rem;
+        }
+        
+        .delete-account-section {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+            color: white;
+        }
+        
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+            border: none;
+            color: white;
+        }
+        
+        .btn-danger-custom:hover {
+            background: linear-gradient(135deg, #ff3838 0%, #ff2f2f 100%);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5">
+                <div class="profile-container">
+                    <div class="logo">👤 프로필 수정</div>
+
+                    <div class="profile-info" th:if="${member}">
+                        <h5>현재 정보</h5>
+                        <p><strong>이름:</strong> <span th:text="${member.name}">사용자 이름</span></p>
+                        <p><strong>이메일:</strong> <span th:text="${member.email}">user@example.com</span></p>
+                        <p><strong>가입일:</strong> <span th:text="${#temporals.format(member.createdAt, 'yyyy-MM-dd')}">2023-01-01</span></p>
+                        <p><strong>로그인 방식:</strong> 
+                            <span th:if="${member.provider.name() == 'LOCAL'}" class="badge bg-primary">일반 로그인</span>
+                            <span th:if="${member.provider.name() == 'GOOGLE'}" class="badge bg-danger">Google</span>
+                            <span th:if="${member.provider.name() == 'NAVER'}" class="badge bg-success">Naver</span>
+                            <span th:if="${member.provider.name() == 'KAKAO'}" class="badge bg-warning">Kakao</span>
+                        </p>
+                    </div>                    <div th:if="${!canUpdate and isSocialUser}" class="password-setup-section">
+                        <div class="alert alert-info">
+                            <h5>🔐 비밀번호 설정</h5>
+                            <p>비밀번호를 설정하시면 소셜 로그인과 일반 로그인을 모두 사용할 수 있습니다.</p>
+                        </div>
+
+                        <!-- 메시지 영역 추가 -->
+                        <div id="messageArea"></div>                        <form id="setPasswordForm">
+                            <div class="mb-3">
+                                <label for="socialNewPassword" class="form-label">새 비밀번호</label>
+                                <input type="password" class="form-control" id="socialNewPassword" required>
+                                <div class="password-requirements">영문, 숫자, 특수문자 조합 8자 이상</div>
+                                <div class="password-feedback" id="socialPasswordStrength"></div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="socialConfirmPassword" class="form-label">비밀번호 확인</label>
+                                <input type="password" class="form-control" id="socialConfirmPassword" required>
+                                <div class="password-match-feedback" id="socialPasswordMatch"></div>
+                            </div>
+                            <button type="submit" class="btn btn-update btn-custom">🔑 비밀번호 설정하고 일반 사용자로 전환</button>
+                        </form></div>
+
+                    <!-- 일반 사용자 프로필 수정 (비밀번호 설정 완료 후) -->
+                    <div th:if="${canUpdate}" class="profile-edit-section">
+
+                        <!-- 메시지 영역 -->
+                        <div id="generalMessageArea"></div>
+
+                        <!-- 1단계: 비밀번호 확인 -->
+                        <div id="step1" class="step active">
+                            <h4 class="mb-3">🔐 비밀번호 확인</h4>
+                            <p class="text-muted mb-3">보안을 위해 현재 비밀번호를 입력해주세요.</p>
+                            
+                            <form id="passwordVerifyForm">
+                                <div class="mb-3">
+                                    <input type="password" class="form-control" id="currentPassword" 
+                                           placeholder="현재 비밀번호" required>
+                                </div>
+                                <button type="submit" class="btn btn-verify btn-custom">
+                                    비밀번호 확인
+                                </button>
+                                <a href="/main" class="btn btn-secondary btn-custom">
+                                    메인으로 가기
+                                </a>
+                            </form>
+                        </div>
+                    
+                        <!-- 2단계: 프로필 수정 -->
+                        <div id="step2" class="step">
+                            <h4 class="mb-3">✏️ 정보 수정</h4>
+                            
+                            <form id="updateForm">
+                                <div class="mb-3">
+                                    <label for="newName" class="form-label">이름</label>
+                                    <input type="text" class="form-control" id="newName" name="name" 
+                                           th:value="${member?.name}" required>
+                                </div>
+                                  <div class="mb-3">
+                                    <label for="newPassword" class="form-label">새 비밀번호 (변경하지 않으려면 비워두세요)</label>
+                                    <input type="password" class="form-control" id="newPassword" name="password">
+                                    <div class="password-requirements">영문, 숫자, 특수문자 조합 8자 이상</div>
+                                    <div class="password-feedback" id="newPasswordStrength"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirmNewPassword" class="form-label">새 비밀번호 확인</label>
+                                    <input type="password" class="form-control" id="confirmNewPassword">
+                                    <div class="password-match-feedback" id="newPasswordMatch"></div>
+                                </div>
+                                  <button type="submit" class="btn btn-update btn-custom">
+                                    정보 수정
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-custom" onclick="goToStep1()">
+                                    이전으로
+                                </button>
+                            </form>
+                            
+                            <!-- 회원탈퇴 섹션 -->
+                            <div class="delete-account-section mt-4">
+                                <h5>⚠️ 회원탈퇴</h5>
+                                <p>회원탈퇴 시 모든 데이터가 영구적으로 삭제되며, 복구할 수 없습니다.</p>
+                                <p><strong>탈퇴 후 삭제되는 정보:</strong></p>
+                                <ul>
+                                    <li>개인정보 (이름, 이메일 등)</li>
+                                    <li>로그인 정보</li>
+                                    <li>모든 활동 기록</li>
+                                </ul>
+                                <div id="deleteMessageArea"></div>
+                                <button type="button" class="btn btn-danger-custom btn-custom" onclick="confirmDeleteAccount()">
+                                    회원탈퇴
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 로그인하지 않았거나 예외 상황 -->
+                    <div th:if="${!canUpdate and !isSocialUser}" class="alert alert-warning">
+                        <h5>⚠️ 접근 제한</h5>
+                        <p>프로필을 수정할 수 없습니다. 다시 로그인해주세요.</p>
+                        <a href="/login" class="btn btn-primary">로그인</a>
+                    </div>
+
+                    <!-- 기타 일반 로그인 사용자의 폼 생략 -->
+                </div>
+            </div>
+        </div>
+    </div>    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 소셜 사용자 비밀번호 설정 관련 요소들
+            const socialNewPassword = document.getElementById('socialNewPassword');
+            const socialConfirmPassword = document.getElementById('socialConfirmPassword');
+            const socialPasswordStrength = document.getElementById('socialPasswordStrength');
+            const socialPasswordMatch = document.getElementById('socialPasswordMatch');
+            const setPasswordForm = document.getElementById('setPasswordForm');
+            const messageArea = document.getElementById('messageArea');
+
+            // 일반 사용자 프로필 수정 관련 요소들
+            const passwordVerifyForm = document.getElementById('passwordVerifyForm');
+            const updateForm = document.getElementById('updateForm');
+            const currentPassword = document.getElementById('currentPassword');
+            const newName = document.getElementById('newName');
+            const newPassword = document.getElementById('newPassword');
+            const confirmNewPassword = document.getElementById('confirmNewPassword');
+            const newPasswordStrength = document.getElementById('newPasswordStrength');
+            const newPasswordMatch = document.getElementById('newPasswordMatch');
+            const generalMessageArea = document.getElementById('generalMessageArea');
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+
+            // 메시지 표시 함수
+            function showMessage(message, type = 'info', targetArea = messageArea) {
+                if (targetArea) {
+                    targetArea.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+                }
+            }
+
+            // 단계 전환 함수
+            function goToStep1() {
+                if (step1 && step2) {
+                    step1.classList.add('active');
+                    step2.classList.remove('active');
+                }
+                if (generalMessageArea) {
+                    generalMessageArea.innerHTML = '';
+                }
+            }
+
+            function goToStep2() {
+                if (step1 && step2) {
+                    step1.classList.remove('active');
+                    step2.classList.add('active');
+                }
+            }
+
+            // 전역 함수로 등록 (HTML에서 호출할 수 있도록)
+            window.goToStep1 = goToStep1;
+
+            // 비밀번호 강도 검사 함수
+            function checkPasswordStrength(password) {
+                const hasLetter = /[a-zA-Z]/.test(password);
+                const hasDigit = /\d/.test(password);
+                const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+                const isLongEnough = password.length >= 8;
+                const score = [hasLetter, hasDigit, hasSpecial, isLongEnough].filter(Boolean).length;
+
+                if (score < 2 || !isLongEnough) {
+                    return { 
+                        html: '<span class="text-danger">약함 - 영문, 숫자, 특수문자 조합 8자 이상 필요</span>', 
+                        class: 'strength-weak', 
+                        isValid: false 
+                    };
+                }
+                if (score === 3) {
+                    return { 
+                        html: '<span class="text-warning">보통 - 모든 조건을 만족하면 더 안전합니다</span>', 
+                        class: 'strength-medium', 
+                        isValid: hasLetter && hasDigit && hasSpecial && isLongEnough
+                    };
+                }
+                if (score === 4) {
+                    return { 
+                        html: '<span class="text-success">강함 - 안전한 비밀번호입니다</span>', 
+                        class: 'strength-strong', 
+                        isValid: true 
+                    };
+                }
+                return { html: '<span class="text-danger">약함</span>', class: 'strength-weak', isValid: false };
+            }            // === 소셜 사용자 비밀번호 설정 로직 ===
+            if (socialNewPassword && socialConfirmPassword) {
+                socialNewPassword.addEventListener('input', function () {
+                    const result = checkPasswordStrength(this.value);
+                    if (socialPasswordStrength) {
+                        socialPasswordStrength.innerHTML = result.html;
+                    }
+                });
+
+                socialConfirmPassword.addEventListener('input', function () {
+                    if (socialPasswordMatch) {
+                        if (this.value === socialNewPassword.value) {
+                            socialPasswordMatch.innerHTML = '<span class="text-success">✓ 비밀번호가 일치합니다</span>';
+                        } else {
+                            socialPasswordMatch.innerHTML = '<span class="text-danger">✗ 비밀번호가 일치하지 않습니다</span>';
+                        }
+                    }
+                });
+            }
+
+            if (setPasswordForm) {
+                setPasswordForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const password = socialNewPassword.value;
+                    const confirmPassword = socialConfirmPassword.value;
+
+                    if (password !== confirmPassword) {
+                        showMessage('비밀번호와 비밀번호 확인이 일치하지 않습니다.', 'danger');
+                        return;
+                    }
+
+                    const strength = checkPasswordStrength(password);
+                    if (!strength.isValid) {
+                        showMessage('비밀번호는 영문, 숫자, 특수문자 조합으로 8자 이상이어야 합니다.', 'danger');
+                        return;
+                    }
+
+                    showMessage('🔄 비밀번호를 설정하고 있습니다...', 'info');
+
+                    try {
+                        const response = await fetch('/api/auth/set-password', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({
+                                password: password,
+                                confirmPassword: confirmPassword
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            showMessage('✅ ' + data.data + ' 페이지를 새로고침합니다.', 'success');
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            showMessage('❌ ' + data.message, 'danger');
+                        }
+                    } catch (error) {
+                        showMessage('❌ 비밀번호 설정 중 오류가 발생했습니다.', 'danger');
+                    }
+                });
+            }            // === 일반 사용자 프로필 수정 로직 ===
+            if (newPassword && confirmNewPassword) {
+                newPassword.addEventListener('input', function () {
+                    if (this.value) {
+                        const result = checkPasswordStrength(this.value);
+                        if (newPasswordStrength) {
+                            newPasswordStrength.innerHTML = result.html;
+                        }
+                    } else {
+                        if (newPasswordStrength) {
+                            newPasswordStrength.innerHTML = '';
+                        }
+                    }
+                });
+
+                confirmNewPassword.addEventListener('input', function () {
+                    if (newPasswordMatch) {
+                        if (newPassword.value && this.value) {
+                            if (this.value === newPassword.value) {
+                                newPasswordMatch.innerHTML = '<span class="text-success">✓ 비밀번호가 일치합니다</span>';
+                            } else {
+                                newPasswordMatch.innerHTML = '<span class="text-danger">✗ 비밀번호가 일치하지 않습니다</span>';
+                            }
+                        } else {
+                            newPasswordMatch.innerHTML = '';
+                        }
+                    }
+                });
+            }
+
+            // 1단계: 비밀번호 확인
+            if (passwordVerifyForm) {
+                passwordVerifyForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const password = currentPassword.value;
+                    if (!password) {
+                        showMessage('현재 비밀번호를 입력해주세요.', 'danger', generalMessageArea);
+                        return;
+                    }
+
+                    showMessage('🔄 비밀번호를 확인하고 있습니다...', 'info', generalMessageArea);
+
+                    try {
+                        const response = await fetch('/api/auth/verify-password', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify({ password: password })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            showMessage('✅ 비밀번호 확인 완료!', 'success', generalMessageArea);
+                            setTimeout(() => {
+                                goToStep2();
+                            }, 1000);
+                        } else {
+                            showMessage('❌ ' + data.message, 'danger', generalMessageArea);
+                            currentPassword.value = '';
+                        }
+                    } catch (error) {
+                        showMessage('❌ 비밀번호 확인 중 오류가 발생했습니다.', 'danger', generalMessageArea);
+                    }
+                });
+            }
+
+            // 2단계: 정보 수정
+            if (updateForm) {
+                updateForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    const name = newName.value.trim();
+                    const password = newPassword.value;
+                    const confirmPassword = confirmNewPassword.value;
+
+                    if (!name) {
+                        showMessage('이름을 입력해주세요.', 'danger', generalMessageArea);
+                        return;
+                    }
+
+                    // 새 비밀번호 입력시 유효성 검사
+                    if (password) {
+                        if (password !== confirmPassword) {
+                            showMessage('새 비밀번호와 비밀번호 확인이 일치하지 않습니다.', 'danger', generalMessageArea);
+                            return;
+                        }
+
+                        const strength = checkPasswordStrength(password);
+                        if (!strength.isValid) {
+                            showMessage('새 비밀번호는 영문, 숫자, 특수문자 조합으로 8자 이상이어야 합니다.', 'danger', generalMessageArea);
+                            return;
+                        }
+                    }
+
+                    showMessage('🔄 정보를 수정하고 있습니다...', 'info', generalMessageArea);
+
+                    try {
+                        const requestData = {
+                            name: name,
+                            currentPassword: currentPassword.value
+                        };
+
+                        if (password) {
+                            requestData.password = password;
+                        }
+
+                        const response = await fetch('/api/auth/update-profile', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify(requestData)
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            showMessage('✅ ' + data.data + ' 메인 페이지로 이동합니다.', 'success', generalMessageArea);
+                            setTimeout(() => {
+                                window.location.href = '/main';
+                            }, 2000);
+                        } else {
+                            showMessage('❌ ' + data.message, 'danger', generalMessageArea);
+                        }                    } catch (error) {
+                        showMessage('❌ 정보 수정 중 오류가 발생했습니다.', 'danger', generalMessageArea);
+                    }
+                });
+            }
+
+            // === 회원탈퇴 관련 함수 ===
+            window.confirmDeleteAccount = function () {
+                const deleteMessageArea = document.getElementById('deleteMessageArea');
+                
+                if (confirm('정말로 회원탈퇴를 하시겠습니까?\n\n⚠️ 모든 데이터가 영구적으로 삭제되며 복구할 수 없습니다.\n\n계속하시려면 "확인"을 클릭하세요.')) {
+                    if (confirm('마지막 확인입니다.\n\n정말로 탈퇴하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
+                        deleteAccount(deleteMessageArea);
+                    }
+                }
+            };            async function deleteAccount(messageArea) {
+                // 현재 비밀번호 가져오기 (1단계에서 입력한 비밀번호)
+                const currentPasswordValue = currentPassword.value;
+                
+                if (!currentPasswordValue) {
+                    showMessage('❌ 현재 비밀번호가 필요합니다. 다시 로그인해주세요.', 'danger', messageArea);
+                    return;
+                }
+                
+                showMessage('🔄 회원탈퇴를 진행하고 있습니다...', 'warning', messageArea);
+
+                try {
+                    // 개선된 회원탈퇴 시작 API 호출
+                    const response = await fetch('/api/auth/initiate-delete-account', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify({
+                            currentPassword: currentPasswordValue
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        const result = data.data;
+                        
+                        if (result.type === 'social') {
+                            // 소셜 사용자: 소셜 로그아웃 URL로 이동
+                            showMessage(`🔄 ${result.provider} 로그아웃 후 회원탈퇴가 완료됩니다...`, 'info', messageArea);
+                            
+                            setTimeout(() => {
+                                window.location.href = result.logoutUrl;
+                            }, 2000);                        } else {
+                            // 일반 사용자: 바로 탈퇴 완료
+                            showMessage('✅ ' + result.message, 'success', messageArea);
+                            
+                            // 클라이언트 사이드 토큰 정리
+                            clearClientTokens();
+                            
+                            setTimeout(() => {
+                                window.location.href = '/delete-account-complete';
+                            }, 2000);
+                        }
+                    } else {
+                        showMessage('❌ ' + data.message, 'danger', messageArea);
+                    }
+                } catch (error) {
+                    console.error('회원탈퇴 오류:', error);
+                    showMessage('❌ 회원탈퇴 중 오류가 발생했습니다.', 'danger', messageArea);
+                }
+            }
+
+            /**
+             * 클라이언트 사이드 토큰 정리
+             */
+            function clearClientTokens() {
+                // 쿠키 삭제
+                const cookiesToClear = ['accessToken', 'refreshToken', 'JSESSIONID'];
+                cookiesToClear.forEach(cookieName => {
+                    document.cookie = `${cookieName}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+                    document.cookie = `${cookieName}=; Path=/api; Expires=Thu, 01 Jan 1970 00:00:01 GMT;`;
+                });
+                
+                // 로컬 스토리지 정리
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                localStorage.removeItem('user');
+                
+                // 세션 스토리지 정리
+                sessionStorage.clear();
+                
+                console.log('클라이언트 토큰 정리 완료');
+            }
+        });
+    </script>
+</body>
+</html>

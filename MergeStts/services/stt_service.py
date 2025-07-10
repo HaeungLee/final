@@ -8,6 +8,9 @@ from datetime import datetime
 from typing import Optional, Tuple
 import tempfile
 import logging
+import base64
+import wave
+import io
 
 from config.settings import settings
 
@@ -95,32 +98,53 @@ class STTService:
         logger.info(f"오디오 녹음 시작: {duration}초, 장치 ID: {self.device_id}")
         
         try:
-            # 블로킹 녹음 작업을 별도 스레드에서 실행
+            # 블로킹 녹음 작업을 별도 스레드에서 실행 (타임아웃 추가)
             loop = asyncio.get_event_loop()
-            audio_data = await loop.run_in_executor(
-                None,
-                self._record_sync,
-                duration
+            
+            # 녹음 시간 + 5초 여유시간으로 타임아웃 설정
+            timeout = duration + 5.0
+            logger.info(f"녹음 타임아웃 설정: {timeout}초")
+            
+            audio_data = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None,
+                    self._record_sync,
+                    duration
+                ),
+                timeout=timeout
             )
             
             logger.info("오디오 녹음 완료")
             return audio_data
             
+        except asyncio.TimeoutError:
+            logger.error(f"녹음 타임아웃 발생: {duration + 5.0}초 초과")
+            raise RuntimeError(f"녹음 타임아웃: 마이크 접근 권한을 확인하세요")
         except Exception as e:
             logger.error(f"녹음 중 오류: {e}")
             raise RuntimeError(f"녹음 실패: {e}")
     
     def _record_sync(self, duration: float) -> np.ndarray:
         """동기 녹음 (내부 사용)"""
-        audio_data = sd.rec(
-            int(duration * self.sample_rate),
-            samplerate=self.sample_rate,
-            channels=self.channels,
-            dtype='float32',
-            device=self.device_id
-        )
-        sd.wait()
-        return audio_data.flatten()
+        try:
+            logger.info(f"sounddevice 녹음 시작: {duration}초")
+            audio_data = sd.rec(
+                int(duration * self.sample_rate),
+                samplerate=self.sample_rate,
+                channels=self.channels,
+                dtype='float32',
+                device=self.device_id
+            )
+            
+            logger.info("sounddevice 대기 중...")
+            sd.wait()  # 녹음 완료까지 대기
+            logger.info("sounddevice 녹음 완료")
+            
+            return audio_data.flatten()
+            
+        except Exception as e:
+            logger.error(f"sounddevice 녹음 중 오류: {e}")
+            raise RuntimeError(f"녹음 실패: {e}")
     
     async def transcribe_audio(
         self, 
@@ -286,4 +310,57 @@ class STTService:
             }
         except Exception as e:
             logger.error(f"장치 정보 조회 실패: {e}")
-            return {"error": str(e)} 
+            return {"error": str(e)}
+    
+    async def transcribe_base64(self, audio_base64: str, audio_format: str = "wav") -> Tuple[str, float]:
+        """
+        Base64 인코딩된 오디오 데이터를 텍스트로 변환 (모바일 지원)
+        
+        Args:
+            audio_base64: Base64 인코딩된 오디오 데이터
+            audio_format: 오디오 포맷 ('wav', 'mp3' 등)
+            
+        Returns:
+            Tuple[str, float]: (변환된 텍스트, 오디오 길이)
+        """
+        try:
+            logger.info("Base64 오디오 데이터 처리 시작")
+            
+            # Base64 디코딩
+            binary_data = base64.b64decode(audio_base64)
+            audio_duration = 0.0
+            
+            # 임시 파일 생성
+            with tempfile.NamedTemporaryFile(
+                suffix=f'.{audio_format}',
+                dir=settings.TEMP_AUDIO_DIR,
+                delete=False
+            ) as temp_file:
+                # 바이너리 데이터를 파일로 저장
+                temp_file.write(binary_data)
+                temp_file_path = temp_file.name
+            
+            logger.info(f"Base64 오디오를 임시 파일로 저장: {temp_file_path}")
+            
+            try:
+                # 오디오 길이 확인 시도 (WAV 파일인 경우)
+                if audio_format.lower() == 'wav':
+                    with wave.open(temp_file_path, 'rb') as wf:
+                        frames = wf.getnframes()
+                        rate = wf.getframerate()
+                        audio_duration = frames / float(rate)
+                        logger.info(f"WAV 파일 길이: {audio_duration:.2f}초")
+            except Exception as e:
+                logger.warning(f"오디오 길이 확인 실패: {e}")
+                
+            # STT 처리
+            text = await self.transcribe_audio(audio_path=temp_file_path)
+            
+            # 임시 파일 정리
+            self.cleanup_temp_file(temp_file_path)
+            
+            return text, audio_duration
+            
+        except Exception as e:
+            logger.error(f"Base64 오디오 처리 실패: {e}")
+            raise RuntimeError(f"Base64 오디오 처리 실패: {e}")

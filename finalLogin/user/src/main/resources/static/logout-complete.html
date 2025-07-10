@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그아웃 완료 - Agentica</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .logout-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 60px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logout-icon {
+            width: 80px;
+            height: 80px;
+            background: #4CAF50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(76, 175, 80, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+            }
+        }
+
+        .logout-icon::before {
+            content: "✓";
+            font-size: 40px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .logout-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .logout-message {
+            font-size: 16px;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .provider-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .provider-info strong {
+            color: #2c3e50;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #ecf0f1;
+            color: #7f8c8d;
+        }
+
+        .btn-secondary:hover {
+            background: #d5dbdb;
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ecf0f1;
+            font-size: 14px;
+            color: #95a5a6;
+        }
+
+        .countdown {
+            font-weight: 600;
+            color: #e74c3c;
+        }
+
+        @media (max-width: 480px) {
+            .logout-container {
+                padding: 40px 20px;
+            }
+            
+            .logout-title {
+                font-size: 24px;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <div class="logout-icon"></div>
+        
+        <h1 class="logout-title">로그아웃 완료</h1>
+        
+        <p class="logout-message">
+            안전하게 로그아웃되었습니다.<br>
+            이용해 주셔서 감사합니다.
+        </p>
+        
+        <div class="provider-info" id="providerInfo" style="display: none;">
+            <strong id="providerName">네이버</strong> 계정에서도 로그아웃 처리가 완료되었습니다.
+        </div>
+        
+        <div class="actions">
+            <a href="/" class="btn btn-primary">
+                🏠 홈으로 돌아가기
+            </a>
+            <a href="/login" class="btn btn-secondary">
+                🔐 다시 로그인
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p>
+                <span class="countdown" id="countdown">5</span>초 후 자동으로 홈페이지로 이동합니다.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // URL 파라미터에서 정보 추출
+        const urlParams = new URLSearchParams(window.location.search);
+        const provider = urlParams.get('provider');
+        const from = urlParams.get('from');
+        
+        // 소셜 로그인 제공자 정보 표시
+        if (provider) {
+            const providerInfo = document.getElementById('providerInfo');
+            const providerName = document.getElementById('providerName');
+            
+            const providerNames = {
+                'naver': '네이버',
+                'google': '구글',
+                'kakao': '카카오'
+            };
+            
+            if (providerNames[provider.toLowerCase()]) {
+                providerName.textContent = providerNames[provider.toLowerCase()];
+                providerInfo.style.display = 'block';
+            }
+        }
+        
+        // 자동 리다이렉트 카운트다운
+        let countdown = 5;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                window.location.href = '/';
+            }
+        }, 1000);
+        
+        // 로그 기록
+        console.log('✅ 로그아웃 완료 페이지 로드');
+        console.log('📊 URL 파라미터:', {
+            provider: provider,
+            from: from
+        });
+        
+        // 로컬 스토리지 최종 정리
+        const keysToRemove = [
+            'accessToken',
+            'refreshToken',
+            'userInfo',
+            'authToken',
+            'loginProvider',
+            'naverAccessToken',
+            'naverUserInfo',
+            'googleAccessToken',
+            'kakaoAccessToken'
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
+        });
+        
+        console.log('🧹 로컬 스토리지 최종 정리 완료');
+        
+        // 페이지 이탈 시 타이머 정리
+        window.addEventListener('beforeunload', () => {
+            clearInterval(timer);
+        });
+        
+        // 키보드 이벤트 (ESC 키로 즉시 홈으로 이동)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                clearInterval(timer);
+                window.location.href = '/';
+            }
+        });
+    </script>
+</body>
+</html>
