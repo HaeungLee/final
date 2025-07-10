@@ -30,7 +30,7 @@ DockerDesktop need to be on
 cd finalteam/test2agent/server && npm run dev
 
 # 4. Voice Proxy Server (8083) - 필수
- cd finalteam/test2agent/server && npm run voice-proxy
+ cd finalteam/test2agent/server ; npm run voice-proxy
 
 # 5. React Client (5173) - 웹용 (선택사항)
  cd finalteam/test2agent/client && npm run dev
