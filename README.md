@@ -34,7 +34,8 @@ Spring Security, Node.js, Python FastAPI, React를 활용한 종합적인 솔루
 
 ## 시연영상
 
-![시연영상](./resource/final2.gif)
+![KakaoTalk_20250711_152619054](https://github.com/user-attachments/assets/4e1125d6-c048-4f33-8069-c36a3732a6fc)
+
 
 > **AI Voice Assistant Platform 실행 화면**  
 > 음성 인터페이스를 통한 자연스러운 대화와 실시간 채팅 기능을 확인할 수 있습니다.
