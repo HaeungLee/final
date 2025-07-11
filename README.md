@@ -41,7 +41,8 @@ Spring Security, Node.js, Python FastAPI, React를 활용한 종합적인 솔루
 
 ## 🏗️ 아키텍처
 
-![아키텍처 다이어그램](./resource/archtecture.png)
+![아키텍처 다이어그램](./resource/archtecture.png)<img width="1058" height="760" alt="그림1" src="https://github.com/user-attachments/assets/d4a65081-496c-41d6-955d-1d2d2aaa0427" />
+
 
 > **마이크로서비스 기반 AI 음성 비서 플랫폼 아키텍처**  
 > Frontend (React), Backend Services (Node.js, Python FastAPI), 인증 서버 (Spring Security), 그리고 외부 서비스 연동을 포함한 전체 시스템 구조입니다.
