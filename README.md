@@ -40,7 +40,7 @@ Spring Security, Node.js, Python FastAPI, React를 활용한 종합적인 솔루
 │   (Port 5173)   │◄──►│   (Port 8081)   │◄──►│   (Port 8080)   │
 │                 │    │                 │    │                 │
 │ • 음성 UI       │    │ • Agent Logic   │    │ • JWT Auth      │
-│ • 채팅 인터페이스 │    │ • WebSocket     │    │ • OAuth2        │
+│ • 채팅 인터페이스 │   │ • WebSocket     │    │ • OAuth2        │
 │ • 실시간 상태    │    │ • Function Call │    │ • PostgreSQL    │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
                                 │
