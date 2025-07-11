@@ -37,8 +37,8 @@ Spring Security, Node.js, Python FastAPI, React를 활용한 종합적인 솔루
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   React Client  │    │   Node.js API   │    │ Spring Security │
-│   (Port 5173)   │◄──►│   (Port 3000)   │◄──►│   (Port 8080)   │
-│                 │    │   (Port 8081)   │    │                 │
+│   (Port 5173)   │◄──►│   (Port 8081)   │◄──►│   (Port 8080)   │
+│                 │    │                 │    │                 │
 │ • 음성 UI       │    │ • Agent Logic   │    │ • JWT Auth      │
 │ • 채팅 인터페이스 │    │ • WebSocket     │    │ • OAuth2        │
 │ • 실시간 상태    │    │ • Function Call │    │ • PostgreSQL    │
@@ -46,13 +46,6 @@ Spring Security, Node.js, Python FastAPI, React를 활용한 종합적인 솔루
                                 │
                                 ▼
                        ┌─────────────────┐    ┌─────────────────┐
-│  Voice Proxy    │    │ Python STT/TTS  │
-│   (Port 8083)   │◄──►│   (Port 8082)   │
-│                 │    │                 │
-│ • CORS 처리     │     │ • FastAPI       │
-│ • 타임아웃 관리  │     │ • Whisper STT   │
-│ • 에러 핸들링    │     │ • ElevenLabs    │
-└─────────────────┘    └─────────────────┘
                        │  Voice Proxy    │    │ Python STT/TTS  │
                        │   (Port 8083)   │◄──►│   (Port 8082)   │
                        │                 │    │                 │
